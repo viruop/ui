@@ -8,8 +8,8 @@ export function rehypeNpmCommand() {
         return
       }
 
-      // npm install.
-      if (node.properties?.["__rawString__"]?.startsWith("npm install")) {
+      // npm install or npm i.
+      if (node.properties?.["__rawString__"]?.startsWith("npm i")) {
         const npmCommand = node.properties?.["__rawString__"]
         node.properties["__npmCommand__"] = npmCommand
         node.properties["__yarnCommand__"] = npmCommand.replace(
@@ -26,22 +26,15 @@ export function rehypeNpmCommand() {
         )
       }
 
-      // npx create.
-      if (node.properties?.["__rawString__"]?.startsWith("npx create-")) {
+      // npx create & npm create.
+      if (node.properties?.["__rawString__"]?.startsWith("npx create-") || node.properties?.["__rawString__"]?.startsWith("npm create")) {
         const npmCommand = node.properties?.["__rawString__"]
         node.properties["__npmCommand__"] = npmCommand
         node.properties["__yarnCommand__"] = npmCommand.replace(
-          "npx create-",
-          "yarn create "
+          /^(npm create|npx create-)/, "yarn create "
         )
-        node.properties["__pnpmCommand__"] = npmCommand.replace(
-          "npx create-",
-          "pnpm create "
-        )
-        node.properties["__bunCommand__"] = npmCommand.replace(
-          "npx",
-          "bunx --bun"
-        )
+        node.properties["__pnpmCommand__"] = npmCommand.replace(/^(npm create|npx create-)/, "pnpm create "),
+        node.properties["__bunCommand__"] = npmCommand.replace(/^npm create/, "bun create").replace(/^npx/, "bunx --bun")
       }
 
       // npx.
